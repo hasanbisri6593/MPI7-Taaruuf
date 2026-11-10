@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI Bahasa Arab - Ta'aruf</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        arabic: ['Amiri', 'serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #ecfdf5; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #059669; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #047857; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .arabic-text {
+            direction: rtl;
+            line-height: 2.2;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: flex; animation: fadeIn 0.5s ease-out; }
+
+        /* Hide radio inputs for custom styling */
+        input[type="radio"].hidden-radio { display: none; }
+        input[type="radio"].hidden-radio:checked + label {
+            background-color: #d1fae5;
+            border-color: #10b981;
+            color: #064e3b;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .print-container { padding: 0; margin: 0; box-shadow: none; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-emerald-50 to-emerald-200 min-h-screen text-slate-800 antialiased overflow-x-hidden selection:bg-emerald-300 selection:text-emerald-900">
+
+    <!-- Global Modal Overlay (Reusable) -->
+    <div id="globalModal" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
+        <div id="modalContent" class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <!-- Content injected here -->
+        </div>
+    </div>
+
+    <!-- Alert Modal (Replaces window.alert) -->
+    <div id="alertModal" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
+            <div id="alertIcon" class="mb-4 text-amber-500">
+                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 id="alertTitle" class="text-lg font-bold text-slate-800 mb-2">Perhatian</h3>
+            <p id="alertMessage" class="text-slate-600 mb-6"></p>
+            <button onclick="closeAlert()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">Mengerti</button>
+        </div>
+    </div>
+
+    <!-- 1. SPLASH SCREEN -->
+    <div id="screen-splash" class="screen active min-h-screen flex-col items-center justify-center bg-gradient-to-b from-emerald-700 to-emerald-900 text-white">
+        <div class="animate-float text-center">
+            <div class="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-md border border-white/20">
+                <svg class="w-16 h-16 text-gold-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-arabic font-bold mb-2">التَّعَارُف</h1>
+            <h2 class="text-xl font-medium tracking-wider text-emerald-100 uppercase">Media Pembelajaran Interaktif</h2>
+            <div class="mt-8 flex justify-center space-x-2">
+                <div class="w-3 h-3 bg-gold-400 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                <div class="w-3 h-3 bg-gold-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-3 h-3 bg-gold-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. COVER PAGE -->
+    <div id="screen-cover" class="screen min-h-screen flex-col items-center justify-center relative py-10 px-4 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]">
+        <div class="absolute inset-0 bg-gradient-to-b from-emerald-800/90 to-emerald-900/90 z-0"></div>
+        
+        <div class="z-10 w-full max-w-4xl flex flex-col items-center">
+            <!-- Badge -->
+            <div class="bg-gold-500 text-emerald-900 text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full mb-6 uppercase tracking-widest shadow-lg animate-slide-up" style="animation-delay: 0.1s;">
+                Bahasa Arab • MTs Kelas VII • Fase D
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-2xl sm:text-3xl md:text-4xl text-center font-bold text-white mb-4 leading-snug animate-slide-up" style="animation-delay: 0.2s;">
+                Kosa Kata, Pola Kalimat, dan Wacana tentang: <span class="text-gold-400 font-arabic text-4xl sm:text-5xl ml-2">التَّعَارُف</span>
+            </h1>
+            
+            <p class="text-emerald-100 text-center text-sm sm:text-base mb-8 max-w-2xl animate-slide-up" style="animation-delay: 0.3s;">
+                (مَن هُوَ؟ - مَنْ هِيَ؟ - مِنْ أَيْنَ أَنْتَ؟ - أَنَا تِلْمِيْذ – هِي مُدَرِّسَة – نَحْن - الْاِسْتِفْهَام بِ مَا/ مَن/ هَل/ مِنْ أَيْن/ كَيْف)
+            </p>
+
+            <!-- Visual Interaktif SVG -->
+            <div class="w-64 h-64 sm:w-80 sm:h-80 relative mb-10 animate-float">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-2xl">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#065f46;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="100" cy="100" r="95" fill="url(#grad1)" />
+                    <path d="M 60 140 C 60 110, 140 110, 140 140" fill="none" stroke="#fbbf24" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="75" cy="85" r="12" fill="#fbbf24" />
+                    <circle cx="125" cy="85" r="12" fill="#fbbf24" />
+                    <path d="M 100 100 L 100 120" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Chat bubbles -->
+                    <path d="M 40 60 Q 20 60 20 40 Q 20 20 50 20 Q 80 20 80 40 Q 80 60 50 60 L 40 70 Z" fill="#fff" opacity="0.9"/>
+                    <text x="35" y="45" font-family="Arial" font-size="14" fill="#065f46">أَهْلًا</text>
+                    
+                    <path d="M 160 70 Q 180 70 180 50 Q 180 30 150 30 Q 120 30 120 50 Q 120 70 150 70 L 160 80 Z" fill="#fff" opacity="0.9"/>
+                    <text x="135" y="55" font-family="Arial" font-size="14" fill="#065f46">مَرْحَبًا</text>
+                </svg>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 animate-slide-up" style="animation-delay: 0.5s;">
+                <button onclick="showDeveloperInfo()" class="bg-emerald-700/50 hover:bg-emerald-600 border border-emerald-400/50 text-white py-3 px-6 rounded-xl font-medium transition-all backdrop-blur-sm flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    Pengembang
+                </button>
+                <button onclick="showTujuanPembelajaran()" class="bg-emerald-700/50 hover:bg-emerald-600 border border-emerald-400/50 text-white py-3 px-6 rounded-xl font-medium transition-all backdrop-blur-sm flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Tujuan
+                </button>
+                <button onclick="navTo('screen-form')" class="bg-gold-500 hover:bg-gold-400 text-emerald-900 py-3 px-10 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(251,191,36,0.5)] hover:shadow-[0_0_25px_rgba(251,191,36,0.8)] text-lg flex items-center justify-center gap-2 sm:ml-2">
+                    MULAI
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. FORM IDENTITAS -->
+    <div id="screen-form" class="screen min-h-screen flex-col items-center justify-center p-4 relative">
+        <div class="absolute inset-0 bg-emerald-900/5 pattern-dots z-0"></div>
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-md z-10 shadow-xl border-t-4 border-t-emerald-500 relative overflow-hidden">
+            <!-- Decorative circle -->
+            <div class="absolute -top-16 -right-16 w-32 h-32 bg-emerald-500 rounded-full opacity-20"></div>
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Identitas Siswa</h2>
+                <p class="text-sm text-slate-500 mt-1">Silakan isi data diri untuk memulai belajar</p>
+            </div>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="studentName" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-white/50" placeholder="Masukkan nama...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Kelas</label>
+                    <select id="studentClass" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-white/50 appearance-none">
+                        <option value="">Pilih Kelas...</option>
+                        <option value="VII-A">VII-A</option>
+                        <option value="VII-B">VII-B</option>
+                        <option value="VII-C">VII-C</option>
+                    </select>
+                </div>
+                <button onclick="submitForm()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md mt-4 flex justify-center items-center gap-2">
+                    Lanjutkan
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. PENGANTAR & PANDUAN -->
+    <div id="screen-guide" class="screen min-h-screen flex-col items-center justify-center p-4 bg-emerald-800 text-white relative overflow-hidden">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-emerald-600 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-gold-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+
+        <div class="w-full max-w-2xl z-10">
+            <div id="guide-slider" class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl relative min-h-[400px] flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-emerald-200 text-sm font-medium tracking-wider uppercase">Panduan Penggunaan</span>
+                    <div class="flex gap-1" id="guide-dots">
+                        <!-- Dots injected by JS -->
+                    </div>
+                </div>
+                
+                <div id="guide-content" class="flex-grow flex flex-col justify-center text-center">
+                    <!-- Slide content injected by JS -->
+                </div>
+
+                <div class="flex justify-between mt-8 pt-6 border-t border-white/10">
+                    <button id="btn-guide-prev" onclick="changeGuideSlide(-1)" class="px-6 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors invisible">Kembali</button>
+                    <button id="btn-guide-next" onclick="changeGuideSlide(1)" class="px-6 py-2 rounded-lg bg-gold-500 hover:bg-gold-400 text-emerald-900 font-bold transition-colors">Selanjutnya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. MENU UTAMA (DASHBOARD) -->
+    <div id="screen-dashboard" class="screen min-h-screen flex-col bg-slate-50">
+        <!-- Header -->
+        <header class="bg-emerald-700 text-white shadow-md rounded-b-3xl relative z-10 pb-10 pt-6 px-4">
+            <div class="max-w-4xl mx-auto flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold font-arabic">مَرْحَبًا</h1>
+                    <p class="text-emerald-100 text-sm">Selamat Belajar,</p>
+                    <p id="dash-student-name" class="text-xl font-bold text-gold-400 capitalize">Siswa</p>
+                    <p id="dash-student-class" class="text-xs text-emerald-200 mt-1 bg-emerald-800/50 inline-block px-2 py-0.5 rounded">Kelas</p>
+                </div>
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-emerald-400">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow max-w-4xl w-full mx-auto p-4 -mt-6 relative z-20">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Menu Belajar -->
+                <div onclick="openMenu('belajar')" class="bg-white rounded-2xl p-6 shadow-lg border border-slate-100 cursor-pointer transform hover:-translate-y-1 transition-all group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-100 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center text-white mb-4 relative z-10 shadow-md">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 relative z-10">BELAJAR</h3>
+                    <p class="text-sm text-slate-500 mt-2 relative z-10">8 Materi Mendalam</p>
+                    <div class="mt-4 flex items-center text-emerald-600 text-sm font-semibold">
+                        <span id="status-belajar">Terbuka 🔓</span>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-200 rounded-full h-1.5 mt-4">
+                        <div id="prog-belajar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Menu Bermain -->
+                <div onclick="openMenu('bermain')" class="bg-white rounded-2xl p-6 shadow-lg border border-slate-100 cursor-pointer transform hover:-translate-y-1 transition-all group relative overflow-hidden" id="card-bermain">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber-100 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-slate-300 rounded-xl flex items-center justify-center text-white mb-4 relative z-10 shadow-md" id="icon-bermain">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 relative z-10">BERMAIN</h3>
+                    <p class="text-sm text-slate-500 mt-2 relative z-10">10 Tantangan Interaktif</p>
+                    <div class="mt-4 flex items-center text-slate-400 text-sm font-semibold" id="status-text-bermain">
+                        <span>Terkunci 🔒</span>
+                    </div>
+                </div>
+
+                <!-- Menu Berlatih -->
+                <div onclick="openMenu('berlatih')" class="bg-white rounded-2xl p-6 shadow-lg border border-slate-100 cursor-pointer transform hover:-translate-y-1 transition-all group relative overflow-hidden" id="card-berlatih">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-rose-100 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-slate-300 rounded-xl flex items-center justify-center text-white mb-4 relative z-10 shadow-md" id="icon-berlatih">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 relative z-10">BERLATIH</h3>
+                    <p class="text-sm text-slate-500 mt-2 relative z-10">Asesmen Berjenjang</p>
+                    <div class="mt-4 flex items-center text-slate-400 text-sm font-semibold" id="status-text-berlatih">
+                        <span>Terkunci 🔒</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Motivasi Banner -->
+            <div class="mt-8 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-5 flex items-start gap-4">
+                <div class="text-3xl">🌱</div>
+                <div>
+                    <h4 class="font-bold text-emerald-800">Kurikulum Berbasis Cinta</h4>
+                    <p class="text-sm text-emerald-700 mt-1 leading-relaxed">
+                        "Belajarlah untuk saling mengenal (Ta'aruf), karena dari mengenal akan tumbuh rasa kasih sayang kepada sesama makhluk Allah, menjaga alam Pohuwato kita, dan menggapai rida-Nya."
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 6. LAYER BELAJAR (8 SLIDES) -->
+    <div id="screen-belajar" class="screen min-h-screen flex-col bg-slate-50 relative">
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 px-4 py-3 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="navTo('screen-dashboard')" class="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <div>
+                    <h2 class="font-bold text-slate-800">Modul Belajar</h2>
+                    <p class="text-xs text-emerald-600 font-medium">Slide <span id="belajar-current">1</span> / 8</p>
+                </div>
+            </div>
+            <div class="flex gap-1" id="belajar-indicators">
+                <!-- Indicators -->
+            </div>
+        </header>
+
+        <main class="flex-grow w-full max-w-3xl mx-auto p-4 pb-24">
+            <div id="belajar-content" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Content injected by JS -->
+            </div>
+        </main>
+
+        <!-- Bottom Navigation for Belajar -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
+            <div class="max-w-3xl mx-auto flex justify-between items-center">
+                <button id="btn-belajar-prev" onclick="changeBelajarSlide(-1)" class="px-5 py-2.5 rounded-xl font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors invisible">
+                    Sebelumnya
+                </button>
+                <div id="belajar-challenge-status" class="text-sm font-medium text-amber-500 flex items-center gap-2">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Selesaikan aktivitas di atas
+                </div>
+                <button id="btn-belajar-next" onclick="changeBelajarSlide(1)" class="px-6 py-2.5 rounded-xl font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-colors opacity-50 cursor-not-allowed flex items-center gap-2">
+                    Lanjut
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. LAYER BERMAIN (10 TANTANGAN) -->
+    <div id="screen-bermain" class="screen min-h-screen flex-col bg-amber-50 relative">
+         <header class="bg-white border-b border-amber-200 sticky top-0 z-30 px-4 py-3 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="confirmExit('bermain')" class="p-2 rounded-full hover:bg-amber-100 text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <div>
+                    <h2 class="font-bold text-amber-800">Tantangan Bermain</h2>
+                    <p class="text-xs text-amber-600 font-medium">Level <span id="bermain-current">1</span> / 10</p>
+                </div>
+            </div>
+            <div class="bg-amber-100 px-3 py-1 rounded-full text-amber-700 font-bold text-sm shadow-inner flex items-center gap-1">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                <span id="bermain-score">0</span>
+            </div>
+        </header>
+
+        <main class="flex-grow w-full max-w-4xl mx-auto p-4 pb-24 flex flex-col">
+            <!-- Progress -->
+            <div class="w-full bg-amber-200 rounded-full h-2 mb-6">
+                <div id="prog-bermain" class="bg-amber-500 h-2 rounded-full transition-all duration-500" style="width: 10%"></div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="bermain-content" class="flex-grow">
+                <!-- Injected by JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- 8. LAYER BERLATIH (10 SOAL ASESMEN) -->
+    <div id="screen-berlatih" class="screen min-h-screen flex-col bg-slate-100 relative">
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 px-4 py-3 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="confirmExit('berlatih')" class="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <div>
+                    <h2 class="font-bold text-rose-800">Asesmen Berlatih</h2>
+                    <p class="text-xs text-rose-600 font-medium">Soal <span id="berlatih-current">1</span> / 10</p>
+                </div>
+            </div>
+            <div id="berlatih-badge" class="px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm">
+                <!-- Level Badge Injected -->
+            </div>
+        </header>
+
+        <main class="flex-grow w-full max-w-4xl mx-auto p-4 pb-24">
+             <!-- Progress -->
+             <div class="w-full bg-slate-200 rounded-full h-2 mb-6 flex gap-1 p-0.5">
+                <!-- Segmented progress bar injected by js -->
+            </div>
+
+            <div id="berlatih-content" class="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                <!-- Content Injected -->
+            </div>
+        </main>
+        
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
+            <div class="max-w-4xl mx-auto flex justify-end">
+                <button id="btn-berlatih-next" onclick="nextBerlatih()" class="px-8 py-3 rounded-xl font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-md flex items-center gap-2">
+                    Kirim Jawaban & Lanjut
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. REPORT SCREEN (PDF EXPORT) -->
+    <div id="screen-report" class="screen min-h-screen flex-col bg-slate-200 py-8 px-4 items-center">
+        <!-- Action Buttons (No Print) -->
+        <div class="w-full max-w-3xl flex justify-between items-center mb-6 no-print">
+            <button onclick="navTo('screen-dashboard')" class="bg-white text-slate-700 px-4 py-2 rounded-lg font-medium shadow-sm hover:bg-slate-50 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Beranda
+            </button>
+            <div class="flex items-center gap-3">
+                <div id="syncStatus" class="text-sm font-medium hidden"></div>
+                <button id="btnDownloadPDF" onclick="generatePDF()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-emerald-700 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Unduh PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Document to Print -->
+        <div id="printArea" class="print-container bg-white w-full max-w-3xl shadow-2xl mx-auto border-t-8 border-emerald-600 relative overflow-hidden">
+             <!-- Watermark -->
+             <div class="absolute inset-0 opacity-[0.03] z-0 pointer-events-none flex items-center justify-center">
+                 <span class="font-arabic text-[200px]">التَّعَارُف</span>
+             </div>
+
+            <div class="p-8 relative z-10">
+                <!-- KOP -->
+                <div class="border-b-4 border-emerald-800 pb-4 mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800 uppercase tracking-wide">Laporan Hasil Belajar</h2>
+                        <h3 class="text-lg text-emerald-700 font-semibold mt-1">Media Pembelajaran Interaktif (MPI)</h3>
+                        <p class="text-sm text-slate-500 mt-1">Materi: Kosa Kata & Pola Kalimat (التَّعَارُف)</p>
+                    </div>
+                    <div class="text-right border-l-2 border-slate-200 pl-4">
+                        <p class="text-sm font-bold text-slate-700">Pengembang:</p>
+                        <p class="text-sm text-emerald-600 font-medium">Mohamad Hasan Bisri, S.Pd.I</p>
+                        <p class="text-xs text-slate-500">MTsS Al-Mubarak Marisa</p>
+                    </div>
+                </div>
+
+                <!-- Identitas -->
+                <div class="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-200 flex flex-wrap gap-x-12 gap-y-2">
+                    <div>
+                        <span class="block text-xs text-slate-500 font-medium uppercase">Nama Siswa</span>
+                        <span id="rep-name" class="font-bold text-slate-800 text-lg">Nama</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-500 font-medium uppercase">Kelas / Fase</span>
+                        <span id="rep-class" class="font-bold text-slate-800 text-lg">Kelas / D</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-500 font-medium uppercase">Tanggal Cetak</span>
+                        <span id="rep-date" class="font-bold text-slate-800 text-lg">Tanggal</span>
+                    </div>
+                </div>
+
+                <!-- Hasil -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Bermain -->
+                    <div class="border border-amber-200 bg-amber-50 rounded-xl p-5 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-3 opacity-20 text-amber-500">
+                            <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path><path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-amber-800 border-b border-amber-200 pb-2 mb-3">Sesi BERMAIN (Tantangan)</h4>
+                        <div class="flex items-end gap-2">
+                            <span id="rep-bermain-score" class="text-4xl font-bold text-amber-600">0</span>
+                            <span class="text-amber-800 font-medium pb-1">/ 100 Poin</span>
+                        </div>
+                        <p class="text-sm text-amber-700 mt-2">Ketuntasan Aktivitas Interaktif</p>
+                    </div>
+
+                    <!-- Berlatih -->
+                    <div class="border border-emerald-200 bg-emerald-50 rounded-xl p-5 relative overflow-hidden">
+                         <div class="absolute top-0 right-0 p-3 opacity-20 text-emerald-500">
+                            <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-emerald-800 border-b border-emerald-200 pb-2 mb-3">Sesi BERLATIH (Asesmen)</h4>
+                        <div class="flex items-end gap-2">
+                            <span id="rep-berlatih-score" class="text-4xl font-bold text-emerald-600">0</span>
+                            <span class="text-emerald-800 font-medium pb-1">/ 100 Poin Akhir</span>
+                        </div>
+                        <p id="rep-predicate" class="text-sm font-bold text-emerald-700 mt-2 bg-emerald-200 inline-block px-2 py-1 rounded">PREDIKAT</p>
+                    </div>
+                </div>
+
+                <!-- Rincian Level -->
+                <div class="mb-8">
+                    <h4 class="font-bold text-slate-800 mb-3 border-l-4 border-emerald-500 pl-2">Rincian Penguasaan Kognitif</h4>
+                    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
+                                <tr>
+                                    <th class="px-4 py-3">Level Kognitif</th>
+                                    <th class="px-4 py-3">Soal</th>
+                                    <th class="px-4 py-3 text-center">Benar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-100">
+                                    <td class="px-4 py-3 font-medium">Level 1 (Dasar/Pemahaman)</td>
+                                    <td class="px-4 py-3">1, 2, 3</td>
+                                    <td class="px-4 py-3 text-center font-bold text-emerald-600" id="rep-lvl1">0/3</td>
+                                </tr>
+                                <tr class="border-b border-slate-100">
+                                    <td class="px-4 py-3 font-medium">Level 2 (Sedang/Penerapan)</td>
+                                    <td class="px-4 py-3">4, 5, 6, 7</td>
+                                    <td class="px-4 py-3 text-center font-bold text-amber-600" id="rep-lvl2">0/4</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 font-medium">Level 3 (Tinggi/HOTS)</td>
+                                    <td class="px-4 py-3">8, 9, 10</td>
+                                    <td class="px-4 py-3 text-center font-bold text-rose-600" id="rep-lvl3">0/3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Catatan Guru & KBC -->
+                <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-5">
+                    <h4 class="font-bold text-emerald-800 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        Catatan Kurikulum Berbasis Cinta (KBC)
+                    </h4>
+                    <p class="text-sm text-emerald-700 italic leading-relaxed mb-4">
+                        "Peserta didik telah berupaya memahami materi Ta'aruf dengan baik. Pemahaman ini diharapkan menumbuhkan karakter mulia: menghargai sesama manusia tanpa membedakan status profesi maupun latar belakang (sosiokultural Gorontalo), sebagai wujud pengamalan Q.S. Al-Hujurat: 13."
+                    </p>
+                    
+                    <h4 class="font-bold text-slate-800 text-sm mb-1">Rekomendasi Guru:</h4>
+                    <p id="rep-recommendation" class="text-sm text-slate-600 bg-white p-3 border border-slate-200 rounded-lg">
+                        Rekomendasi akan muncul berdasarkan nilai.
+                    </p>
+                </div>
+
+                <div class="mt-8 text-center text-xs text-slate-400">
+                    Dokumen ini digenerate secara otomatis oleh sistem MPI.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        // =====================================================================
+        // === TAUTAN GOOGLE APPS SCRIPT (GAS) ===
+        // Ganti string URL di bawah ini dengan URL Web App Anda setelah deploy
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxJc2fnrCcOTH125al4SmgIx5o6-1G_Ww39oibiMkPVbPQLjfgM08nI1LcNVxir3HFO/exec";
+        // =====================================================================
+
+        /* === STATE MANAGEMENT === */
+        const state = {
+            student: { name: '', class: '' },
+            progress: {
+                belajarComplete: false,
+                bermainComplete: false,
+                berlatihComplete: false
+            },
+            scores: { bermain: 0, berlatih: 0 },
+            berlatihBreakdown: { lvl1: 0, lvl2: 0, lvl3: 0 },
+            jawabanBermain: [], // Track detail jawaban sesi bermain
+            jawabanBerlatih: [] // Track detail jawaban sesi berlatih
+        };
+
+        /* === CURRICULUM DATA === */
+        
+        // 1. BELAJAR (8 Slides)
+        const dataBelajar = [
+            {
+                title: "Makna Ta'aruf & Ayat Al-Qur'an",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Di Kabupaten Pohuwato yang kaya akan keindahan Pantai Pohon Cinta dan hamparan pegunungan, masyarakatnya hidup rukun meski berasal dari berbagai profesi seperti nelayan, petani, dan ASN. Kunci kerukunan ini adalah sikap saling mengenal atau dalam bahasa Arab disebut <strong>التَّعَارُف (At-Ta'aruf)</strong>.</p>
+                        
+                        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg my-6">
+                            <h4 class="font-bold text-emerald-800 mb-2">Integrasi Al-Qur'an</h4>
+                            <p class="arabic-text text-2xl text-right font-arabic mb-3 text-emerald-900">يَا أَيُّهَا النَّاسُ إِنَّا خَلَقْنَاكُمْ مِنْ ذَكَرٍ وَأُنْثَىٰ وَجَعَلْنَاكُمْ شُعُوبًا وَقَبَائِلَ لِتَعَارَفُوا ۚ</p>
+                            <p class="text-sm text-slate-600 italic">"Wahai manusia! Sungguh, Kami telah menciptakan kamu dari seorang laki-laki dan seorang perempuan, kemudian Kami jadikan kamu berbangsa-bangsa dan bersuku-suku agar kamu saling mengenal." <br><span class="font-bold">(Q.S. Al-Hujurat [49]: 13)</span></p>
+                        </div>
+                        
+                        <p class="mb-4"><strong>Kurikulum Berbasis Cinta:</strong> Ayat di atas mengajarkan bahwa perbedaan diciptakan Allah bukan untuk saling merendahkan, melainkan untuk menumbuhkan cinta kasih melalui Ta'aruf. Menyapa tetangga nelayan atau teman yang orang tuanya petani dengan ramah adalah wujud cinta kita kepada Allah dan sesama makhluk-Nya.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Berdasarkan Q.S. Al-Hujurat ayat 13, apa tujuan utama Allah menciptakan manusia berbeda-beda (bersuku-suku dan berbangsa-bangsa)?",
+                    options: ["Untuk saling bersaing", "Untuk saling mengenal (Ta'aruf)", "Untuk saling membanggakan diri"],
+                    answer: 1
+                }
+            },
+            {
+                title: "Kosa Kata (Mufradat) Inti",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Mari kita pelajari beberapa kosa kata yang sering digunakan saat berkenalan, terinspirasi dari keberagaman penduduk Pohuwato.</p>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 my-6">
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center shadow-sm">
+                                <span class="block text-2xl font-arabic text-emerald-700">أَنَا</span>
+                                <span class="text-sm font-medium">Saya</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center shadow-sm">
+                                <span class="block text-2xl font-arabic text-emerald-700">أَنْتَ</span>
+                                <span class="text-sm font-medium">Kamu (Lk)</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center shadow-sm">
+                                <span class="block text-2xl font-arabic text-emerald-700">أَنْتِ</span>
+                                <span class="text-sm font-medium">Kamu (Pr)</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center shadow-sm">
+                                <span class="block text-2xl font-arabic text-emerald-700">تِلْمِيْذٌ</span>
+                                <span class="text-sm font-medium">Siswa (Lk)</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center shadow-sm">
+                                <span class="block text-2xl font-arabic text-emerald-700">مُدَرِّسَةٌ</span>
+                                <span class="text-sm font-medium">Guru (Pr)</span>
+                            </div>
+                             <div class="bg-white p-3 rounded-lg border border-slate-200 text-center shadow-sm">
+                                <span class="block text-2xl font-arabic text-emerald-700">فَلَّاحٌ</span>
+                                <span class="text-sm font-medium">Petani</span>
+                            </div>
+                        </div>
+                        <p><strong>Konteks Lokal:</strong> Mengetahui profesi seperti Petani (<span class="font-arabic">فَلَّاحٌ</span>) penting di daerah persawahan Pohuwato. Apapun profesinya, kita wajib menghormatinya.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Apa arti dari kosa kata <span class='font-arabic text-lg'>فَلَّاحٌ</span> yang banyak ditekuni oleh masyarakat di daerah pegunungan Pohuwato?",
+                    options: ["Nelayan", "Petani", "Guru"],
+                    answer: 1
+                }
+            },
+            {
+                title: "Pola Kalimat: Siapa Dia? (مَنْ هُوَ؟ / مَنْ هِيَ؟)",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Untuk menanyakan identitas pihak ketiga (dia), kita menggunakan kata tanya <span class="font-arabic text-xl">مَنْ</span> (Siapa).</p>
+                        
+                        <div class="space-y-4 my-6">
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                                <h4 class="font-bold text-blue-800 mb-2">Untuk Laki-laki (Muzakkar)</h4>
+                                <p class="text-lg font-arabic text-right mb-1">مَنْ هُوَ ؟ هُوَ مُحَمَّدٌ ، هُوَ تِلْمِيْذٌ</p>
+                                <p class="text-sm">Siapa dia (Lk)? Dia Muhammad, dia seorang siswa (Lk).</p>
+                            </div>
+                            <div class="bg-pink-50 p-4 rounded-xl border border-pink-200">
+                                <h4 class="font-bold text-pink-800 mb-2">Untuk Perempuan (Muannas)</h4>
+                                <p class="text-lg font-arabic text-right mb-1">مَنْ هِيَ ؟ هِيَ فَاطِمَةُ ، هِيَ تِلْمِيْذَةٌ</p>
+                                <p class="text-sm">Siapa dia (Pr)? Dia Fatimah, dia seorang siswi (Pr).</p>
+                            </div>
+                        </div>
+                        <p><strong>Nilai Cinta Ilmu:</strong> Bertanya adalah kunci pengetahuan. Dalam Islam, menanyakan keadaan sahabat untuk mempererat silaturahmi sangat dianjurkan.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Jika Anda melihat seorang siswi perempuan baru di MTsS Al-Mubarak Marisa dan ingin menanyakan siapa dia kepada teman Anda, kalimat yang tepat adalah...",
+                    options: ["<span class='font-arabic'>مَنْ هُوَ ؟</span>", "<span class='font-arabic'>مَنْ أَنْتَ ؟</span>", "<span class='font-arabic'>مَنْ هِيَ ؟</span>"],
+                    answer: 2
+                }
+            },
+            {
+                title: "Pola Kalimat: Menanyakan Asal Daerah",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Pohuwato memiliki banyak kecamatan. Ketika kita bertemu teman baru, kita bisa menanyakan dari mana ia berasal dengan pola <span class="font-arabic text-xl">مِنْ أَيْنَ</span> (Dari mana).</p>
+                        
+                        <div class="bg-white border-2 border-emerald-200 rounded-xl p-5 my-6 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-100 rounded-bl-full z-0"></div>
+                            <div class="relative z-10 space-y-3">
+                                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span class="text-sm font-medium">Tanya (Lk):</span>
+                                    <span class="font-arabic text-xl text-emerald-800">مِنْ أَيْنَ أَنْتَ ؟</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                                    <span class="text-sm font-medium">Tanya (Pr):</span>
+                                    <span class="font-arabic text-xl text-emerald-800">مِنْ أَيْنَ أَنْتِ ؟</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-1">
+                                    <span class="text-sm font-medium text-emerald-600">Jawab:</span>
+                                    <span class="font-arabic text-xl text-emerald-800">أَنَا مِنْ مَارِيْسَا</span>
+                                </div>
+                                <p class="text-xs text-slate-500 text-right mt-1">"Saya dari Marisa"</p>
+                            </div>
+                        </div>
+                        <p><strong>Cinta Tanah Air:</strong> Menyebutkan nama daerah seperti Marisa (Ibu kota Pohuwato) dengan bangga adalah sebagian dari mencintai tempat kelahiran kita, tempat kita mengabdi pada Allah.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Bagaimana cara Anda menanyakan 'Dari mana kamu berasal?' kepada seorang teman LAKI-LAKI yang baru pindah ke desa pesisir Pohuwato?",
+                    options: ["<span class='font-arabic'>مِنْ أَيْنَ أَنْتِ ؟</span>", "<span class='font-arabic'>مِنْ أَيْنَ أَنْتَ ؟</span>", "<span class='font-arabic'>مَنْ أَنْتَ ؟</span>"],
+                    answer: 1
+                }
+            },
+            {
+                title: "Kata Ganti Orang Pertama: Saya & Kami",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Dalam pergaulan sehari-hari, baik saat bersama para nelayan di Pantai Pohon Cinta atau belajar di kelas, kita menggunakan kata ganti diri.</p>
+                        
+                        <ul class="space-y-3 my-6">
+                            <li class="flex items-start gap-3 bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-arabic text-2xl text-emerald-600 font-bold min-w-[50px] text-right">أَنَا</span>
+                                <div>
+                                    <p class="font-medium text-slate-800">Ana (Saya)</p>
+                                    <p class="text-sm text-slate-600">Bisa digunakan oleh laki-laki maupun perempuan.<br>Contoh: <span class="font-arabic">أَنَا تِلْمِيْذٌ</span> (Saya siswa).</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3 bg-white p-3 rounded-lg border border-slate-200">
+                                <span class="font-arabic text-2xl text-emerald-600 font-bold min-w-[50px] text-right">نَحْنُ</span>
+                                <div>
+                                    <p class="font-medium text-slate-800">Nahnu (Kami/Kita)</p>
+                                    <p class="text-sm text-slate-600">Menunjukkan kebersamaan atau kelompok.<br>Contoh: <span class="font-arabic">نَحْنُ تَلَامِيْذٌ</span> (Kami para siswa).</p>
+                                </div>
+                            </li>
+                        </ul>
+                        <p><strong>Nilai Kebersamaan:</strong> Penggunaan kata <span class="font-arabic">نَحْنُ</span> (kami/kita) mencerminkan gotong royong, sebuah budaya kuat masyarakat pesisir dan petani di Pohuwato saat bekerja dan menjaga lingkungan.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Kata ganti apa yang tepat digunakan saat Anda dan teman-teman sekelas MTsS Al-Mubarak Marisa memperkenalkan diri secara kelompok/bersama-sama?",
+                    options: ["<span class='font-arabic'>أَنَا</span>", "<span class='font-arabic'>هُوَ</span>", "<span class='font-arabic'>نَحْنُ</span>"],
+                    answer: 2
+                }
+            },
+            {
+                title: "Menjelaskan Profesi Orang Lain",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Sangat penting untuk menyebut profesi seseorang dengan kata ganti (Dhamir) yang tepat secara gender (Laki-laki/Perempuan).</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
+                            <div class="bg-gradient-to-br from-blue-50 to-white p-4 rounded-xl border border-blue-100 shadow-sm text-center">
+                                <div class="text-3xl mb-2">👨‍🏫</div>
+                                <p class="font-arabic text-2xl text-blue-900 mb-1">هُوَ مُدَرِّسٌ</p>
+                                <p class="text-sm font-medium">Dia (Lk) Guru Lk.</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-pink-50 to-white p-4 rounded-xl border border-pink-100 shadow-sm text-center">
+                                <div class="text-3xl mb-2">👩‍🏫</div>
+                                <p class="font-arabic text-2xl text-pink-900 mb-1">هِيَ مُدَرِّسَةٌ</p>
+                                <p class="text-sm font-medium">Dia (Pr) Guru Pr.</p>
+                            </div>
+                        </div>
+                        <p><strong>Cinta Diri Sendiri & Sesama:</strong> Menghormati guru (Mudarris/Mudarrisah) adalah kewajiban agama. Mereka menempuh perjalanan jauh melintasi perkebunan Pohuwato demi mendidik kita. Perhatikan penambahan <em>Ta' Marbuthah</em> (ة) untuk menunjukkan perempuan.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Kalimat yang BENAR secara tata bahasa Arab untuk menyatakan 'Dia (Perempuan) adalah seorang guru' adalah...",
+                    options: ["<span class='font-arabic'>هِيَ مُدَرِّسٌ</span>", "<span class='font-arabic'>هِيَ مُدَرِّسَةٌ</span>", "<span class='font-arabic'>هُوَ مُدَرِّسَةٌ</span>"],
+                    answer: 1
+                }
+            },
+            {
+                title: "Kata Tanya: Apa, Apakah, Bagaimana (مَا / هَلْ / كَيْفَ)",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Untuk melengkapi perkenalan dan percakapan sederhana, kita menggunakan beberapa kata tanya (Istifham) dasar lainnya:</p>
+                        
+                        <div class="overflow-x-auto my-6">
+                            <table class="w-full text-sm text-left border-collapse">
+                                <tr class="bg-emerald-100 text-emerald-800">
+                                    <th class="p-3 border border-emerald-200">Kata Tanya</th>
+                                    <th class="p-3 border border-emerald-200">Arti</th>
+                                    <th class="p-3 border border-emerald-200">Contoh Penggunaan</th>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-emerald-100 font-arabic text-lg text-center">مَا</td>
+                                    <td class="p-3 border border-emerald-100 font-bold">Apa</td>
+                                    <td class="p-3 border border-emerald-100 font-arabic text-right">مَا اسْمُكَ ؟ (Siapa namamu?)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-emerald-100 font-arabic text-lg text-center">هَلْ</td>
+                                    <td class="p-3 border border-emerald-100 font-bold">Apakah</td>
+                                    <td class="p-3 border border-emerald-100 font-arabic text-right">هَلْ أَنْتَ تِلْمِيْذٌ ؟ (Apakah kamu siswa?)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 border border-emerald-100 font-arabic text-lg text-center">كَيْفَ</td>
+                                    <td class="p-3 border border-emerald-100 font-bold">Bagaimana</td>
+                                    <td class="p-3 border border-emerald-100 font-arabic text-right">كَيْفَ حَالُكَ ؟ (Bagaimana kabarmu?)</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <p><strong>Interaksi Sosial yang Baik:</strong> Menanyakan kabar dengan <span class="font-arabic">كَيْفَ حَالُكَ</span> kepada teman nelayan setelah mereka kembali dari melaut menunjukkan rasa empati yang sesuai dengan moderasi beragama.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Jika Anda bertemu bapak nelayan di Pantai Pohon Cinta dan ingin menanyakan kabarnya dengan sopan dalam bahasa Arab, Anda mengucapkan...",
+                    options: ["<span class='font-arabic'>مَا اسْمُكَ ؟</span>", "<span class='font-arabic'>كَيْفَ حَالُكَ ؟</span>", "<span class='font-arabic'>مِنْ أَيْنَ أَنْتَ ؟</span>"],
+                    answer: 1
+                }
+            },
+            {
+                title: "Teks Wacana (Hiwar / Percakapan)",
+                content: `
+                    <div class="prose max-w-none text-slate-700">
+                        <p class="mb-4">Bacalah dialog singkat antara Hasan dan Umar yang baru bertemu di area Madrasah dekat Pantai Pohon Cinta.</p>
+                        
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 my-6 space-y-4">
+                            <div class="flex justify-end gap-3 items-start">
+                                <div class="text-right">
+                                    <p class="text-xs text-slate-500 mb-1">Hasan</p>
+                                    <div class="bg-emerald-100 text-emerald-900 rounded-l-xl rounded-br-xl p-3 inline-block">
+                                        <p class="font-arabic text-xl">السَّلَامُ عَلَيْكُمْ، كَيْفَ حَالُكَ؟</p>
+                                    </div>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs mt-4">H</div>
+                            </div>
+                            
+                            <div class="flex justify-start gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs mt-4">U</div>
+                                <div>
+                                    <p class="text-xs text-slate-500 mb-1">Umar</p>
+                                    <div class="bg-slate-100 text-slate-800 rounded-r-xl rounded-bl-xl p-3 inline-block">
+                                        <p class="font-arabic text-xl text-right">وَعَلَيْكُمُ السَّلَامُ، بِخَيْرٍ وَالْحَمْدُ لِلّٰهِ. أَنَا عُمَرُ، وَمَا اسْمُكَ؟</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-3 items-start">
+                                <div class="text-right">
+                                    <p class="text-xs text-slate-500 mb-1">Hasan</p>
+                                    <div class="bg-emerald-100 text-emerald-900 rounded-l-xl rounded-br-xl p-3 inline-block">
+                                        <p class="font-arabic text-xl">أَنَا حَسَنٌ. مِنْ أَيْنَ أَنْتَ يَا عُمَرُ؟</p>
+                                    </div>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs mt-4">H</div>
+                            </div>
+                            
+                             <div class="flex justify-start gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs mt-4">U</div>
+                                <div>
+                                    <p class="text-xs text-slate-500 mb-1">Umar</p>
+                                    <div class="bg-slate-100 text-slate-800 rounded-r-xl rounded-bl-xl p-3 inline-block">
+                                        <p class="font-arabic text-xl text-right">أَنَا مِنْ مَارِيْسَا. هَلْ أَنْتَ تِلْمِيْذٌ هُنَا؟</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-sm italic">Dialog ini menunjukkan keramahan (kasih sayang antar sesama) sesuai tuntunan Rasulullah SAW untuk saling menebar salam.</p>
+                    </div>
+                `,
+                challenge: {
+                    type: 'mc',
+                    question: "Berdasarkan wacana (Hiwar) di atas, dari manakah asal daerah Umar?",
+                    options: ["Dari Gorontalo", "Dari Marisa", "Dari Pegunungan"],
+                    answer: 1
+                }
+            }
+        ];
+
+        // 2. BERMAIN (10 Soal - PG dengan Stimulus Kaya)
+        const dataBermain = [
+             {
+                stimulus: "Di Kabupaten Pohuwato, Provinsi Gorontalo, terbentang pesona Pantai Pohon Cinta yang indah. Mayoritas penduduk di pesisir ini bekerja sebagai nelayan yang tangguh, sementara di daerah pegunungan dan persawahan, masyarakat bertani dengan tekun. Suatu hari, di sebuah Madrasah Tsanawiyah, seorang siswa baru bernama Ahmad yang berasal dari keluarga petani bertemu dengan Umar, anak seorang nelayan. Sesuai dengan ajaran Islam dalam Surah Al-Hujurat ayat 13, perbedaan latar belakang dan profesi orang tua tidak menghalangi mereka untuk saling mengenal (Ta'aruf). Mereka mempraktikkan percakapan Bahasa Arab yang telah dipelajari. Ahmad menyapa dengan ramah dan bertanya tentang identitas teman baru Umar.",
+                question: "Dari stimulus di atas, jika Ahmad ingin menanyakan 'Siapa nama kamu?' kepada Umar dalam bahasa Arab, maka kalimat yang tepat digunakan adalah...",
+                options: ["مِنْ أَيْنَ أَنْتَ ؟", "مَا اسْمُكَ ؟", "كَيْفَ حَالُكَ ؟", "هَلْ أَنْتَ تِلْمِيْذٌ ؟"],
+                answer: 1
+            },
+            {
+                stimulus: "Kehidupan di pesisir Pantai Pohon Cinta sangat dinamis. Setiap pagi, para nelayan bersiap melaut dengan perahu mereka, mencari rezeki yang halal karunia Allah SWT. Di sisi lain, para guru MTsS Al-Mubarak Marisa dengan penuh dedikasi berangkat mengajar untuk membekali generasi muda Pohuwato dengan ilmu agama dan pengetahuan umum. Saat istirahat di madrasah, seorang siswa kelas VII, Budi, melihat seorang pria dewasa masuk ke area sekolah yang belum pernah ia lihat sebelumnya. Ia ingin mengetahui profesi pria tersebut.",
+                question: "Berdasarkan situasi tersebut, jika Budi ingin menanyakan 'Apakah dia (Laki-laki) seorang guru?' kepada temannya, kalimat bahasa Arab yang benar secara struktur adalah...",
+                options: ["هَلْ هُوَ تِلْمِيْذٌ ؟", "هَلْ هِيَ مُدَرِّسَةٌ ؟", "هَلْ هُوَ مُدَرِّسٌ ؟", "مَنْ هُوَ ؟"],
+                answer: 2
+            },
+             {
+                stimulus: "Menjaga kelestarian lingkungan hidup adalah wujud syukur atas nikmat Allah. Di sekolah-sekolah di Pohuwato, para siswa diajarkan untuk peduli lingkungan. Aisyah, seorang siswi yang rajin, mengajak teman-teman perempuannya untuk memungut sampah plastik. Sambil bergotong royong, mereka berbincang-bincang menggunakan kosa kata bahasa Arab. Fatimah, teman baru Aisyah yang pindah dari kota lain, merasa kagum dengan kekompakan mereka. Fatimah ingin menanyakan dari mana asal Aisyah.",
+                question: "Kalimat tanya bahasa Arab yang tepat diucapkan Fatimah kepada Aisyah (Perempuan) untuk menanyakan 'Dari mana kamu berasal?' adalah...",
+                options: ["مِنْ أَيْنَ أَنْتَ ؟", "مِنْ أَيْنَ أَنْتِ ؟", "مَا اسْمُكِ ؟", "مَنْ هِيَ ؟"],
+                answer: 1
+            },
+             {
+                stimulus: "Di tengah perkebunan jagung yang luas di wilayah Pohuwato, Pak Mahmud bekerja keras sebagai seorang petani (fallaah). Pekerjaan bertani membutuhkan kesabaran dan keikhlasan. Anak Pak Mahmud, yang bernama Hasan, sangat bangga pada profesi ayahnya. Saat di kelas bahasa Arab, Guru meminta setiap siswa memperkenalkan diri dan menyebutkan profesi orang tua mereka. Hasan maju ke depan kelas dengan penuh percaya diri.",
+                question: "Dari cerita Hasan di atas, terjemahan yang tepat untuk kalimat 'Dia (laki-laki) adalah seorang petani' ke dalam bahasa Arab adalah...",
+                options: ["هُوَ فَلَّاحٌ", "هِيَ فَلَّاحَةٌ", "أَنَا فَلَّاحٌ", "نَحْنُ فَلَّاحُوْنَ"],
+                answer: 0
+            },
+            {
+                stimulus: "Keseharian masyarakat Pohuwato tidak lepas dari interaksi sosial yang hangat. Menyapa sesama dengan ucapan salam dan menanyakan kabar bukan sekadar basa-basi, melainkan sunnah Rasulullah SAW untuk merekatkan persaudaraan (Ukhuwah Islamiyah). Saat bertemu di pasar tradisional Marisa, Ibu Aminah, seorang ASN, bertemu dengan Ibu Khadijah.",
+                question: "Berdasarkan teks di atas, kata tanya (Istifham) yang berfungsi untuk menanyakan keadaan atau kabar seseorang dalam bahasa Arab adalah...",
+                options: ["مَنْ", "كَيْفَ", "هَلْ", "مَا"],
+                answer: 1
+            },
+            {
+                stimulus: "Moderasi beragama mengajarkan kita untuk bersikap adil, seimbang, dan menghargai keberagaman. Di MTsS Al-Mubarak Marisa, siswa-siswa berasal dari berbagai desa dengan karakteristik yang sedikit berbeda. Ketika mempelajari teks qira'ah (bacaan) tentang Ta'aruf, siswa diajarkan untuk memahami identitas masing-masing. Terdapat kalimat dalam buku teks yang berbunyi 'أَنَا مِنْ جُورُونْتَالُو، وَنَحْنُ تَلَامِيْذٌ'.",
+                question: "Dalam petikan teks bahasa Arab tersebut, apa makna dari kata ganti 'نَحْنُ' (Nahnu)?",
+                options: ["Kamu (Laki-laki)", "Dia (Perempuan)", "Kami / Kita", "Saya"],
+                answer: 2
+            },
+            {
+                stimulus: "Berdasarkan data kependudukan, penduduk Kabupaten Pohuwato memiliki mata pencaharian utama yang beragam, didominasi oleh Petani, Nelayan, dan ASN (Aparatur Sipil Negara). Seorang guru bahasa Arab yang kreatif menggunakan data ini untuk membuat permainan menjodohkan kosa kata. Beliau membuat kartu bergambar jala ikan, cangkul, dan papan tulis (seorang ibu sedang mengajar).",
+                question: "Kosa kata (mufradat) apa yang harus dipilih siswa untuk dipasangkan dengan gambar 'Seorang Ibu sedang Mengajar' (Guru Wanita)?",
+                options: ["تِلْمِيْذٌ", "مُدَرِّسَةٌ", "فَلَّاحٌ", "مُدَرِّسٌ"],
+                answer: 1
+            },
+             {
+                stimulus: "Dalam tata bahasa Arab, terdapat kekhususan atau pemisahan gender dalam penggunaan kata ganti (Dhamir) dan kata tunjuk (Isim Isyarah) antara laki-laki (Muzakkar) dan perempuan (Muannas). Hal ini menunjukkan ketelitian bahasa. Jika seorang siswa, Zaid, ingin menunjuk teman perempuannya yang bernama Maryam dan menanyakan identitasnya kepada guru, ia tidak boleh menggunakan kata tanya yang ditujukan untuk laki-laki.",
+                question: "Jika Zaid ingin bertanya 'Siapa dia (perempuan)?' untuk menanyakan identitas Maryam, kalimat Arab yang tepat adalah...",
+                options: ["مَنْ هِيَ ؟", "مَنْ هُوَ ؟", "مَا هَذَا ؟", "كَيْفَ حَالُكِ ؟"],
+                answer: 0
+            },
+            {
+                stimulus: "Sebuah wacana (Hiwar) singkat disajikan di papan tulis: \nAli: السَّلَامُ عَلَيْكُمْ\nUmar: وَعَلَيْكُمُ السَّلَامُ\nAli: مَنْ هَذَا يَا عُمَرُ ؟\nUmar: هَذَا أَخِيْ، هُوَ ... (Petani)\nAli: مَاشَاءَ الله\nDialog di atas menggambarkan pertemuan Ali dan Umar di dekat area persawahan Pohuwato.",
+                question: "Lengkapi titik-titik pada dialog Umar dengan kosa kata profesi 'Petani' dalam bahasa Arab yang tepat!",
+                options: ["تِلْمِيْذٌ", "مُدَرِّسٌ", "فَلَّاحٌ", "مُدَرِّسَةٌ"],
+                answer: 2
+            },
+             {
+                stimulus: "Di akhir pembelajaran bab Ta'aruf, siswa-siswi MTsS Al-Mubarak Marisa ditugaskan membuat paragraf pendek (insya') tentang diri mereka. Seorang siswa menuliskannya demikian: 'Ismii Ridwan. Ana tilmiidzun fii Al-Madrasah Al-Mutawassithah Al-Islamiyyah. Ana min Pohuwato.' Ia membacakan paragraf tersebut di depan kelas dengan suara lantang.",
+                question: "Dari paragraf perkenalan (insya') Ridwan di atas, informasi utama apa yang ia sampaikan pada kalimat 'Ana tilmiidzun...'?",
+                options: ["Asal daerahnya", "Status/Profesinya sebagai siswa", "Nama ayahnya", "Cita-citanya"],
+                answer: 1
+            }
+        ];
+
+        // 3. BERLATIH (10 Soal Berjenjang)
+        const dataBerlatih = [
+            // LEVEL 1 (Dasar/Pemahaman) - Q1-Q3
+            {
+                level: 1, points: 8,
+                stimulus: "Penduduk pesisir Gorontalo sangat ramah. Ketika menyambut pendatang atau turis yang berkunjung ke Pantai Pohon Cinta, mereka senantiasa mengucapkan salam sejahtera dan selamat datang. Dalam budaya Islam dan pembelajaran bahasa Arab, ungkapan selamat datang memiliki istilah khusus.",
+                question: "Kosa kata bahasa Arab yang bermakna 'Selamat Datang' adalah...",
+                options: ["أَهْلًا وَسَهْلًا", "شُكْرًا", "إِلَى اللِّقَاءِ", "مَعَ السَّلَامَةِ"],
+                answer: 0
+            },
+            {
+                level: 1, points: 8,
+                stimulus: "Setiap pagi, jalanan di sekitar MTsS Al-Mubarak Marisa ramai oleh para siswa yang bersemangat ke sekolah. Mereka memakai seragam rapi dan membawa tas berisi buku pelajaran.",
+                question: "Terjemahan yang tepat untuk kata 'Siswa' (laki-laki) ke dalam bahasa Arab adalah...",
+                options: ["مُدَرِّسَةٌ", "فَلَّاحٌ", "تِلْمِيْذٌ", "تِلْمِيْذَةٌ"],
+                answer: 2
+            },
+            {
+                level: 1, points: 8,
+                stimulus: "Sikap saling mengenal (Ta'aruf) yang termaktub dalam Q.S. Al-Hujurat: 13 menegaskan bahwa perbedaan adalah sunnatullah (ketetapan Allah). Manusia diciptakan berbangsa-bangsa (Syu'uuban) dan bersuku-suku (Qabaa'ila).",
+                question: "Potongan ayat 'لِتَعَارَفُوا' (lita'aarafuu) dalam konteks surah Al-Hujurat ayat 13 memiliki arti...",
+                options: ["Agar kamu saling mengenal", "Agar kamu saling berselisih", "Agar kamu mencari harta", "Agar kamu menjauhi larangan"],
+                answer: 0
+            },
+            
+            // LEVEL 2 (Sedang/Penerapan) - Q4-Q7
+            {
+                level: 2, points: 10,
+                stimulus: "Dalam struktur tata bahasa Arab, penggunaan kata ganti orang (Dhamir) harus bersesuaian dengan kata bendanya (Isim) dari segi jenis kelamin (Muzakkar/Muannas). Jika subjeknya perempuan, maka predikatnya (Khabar) umumnya ditandai dengan Ta' Marbuthah (ة) di akhir kata.",
+                question: "Pilihlah kalimat yang benar penerapan tata bahasanya (Muzakkar/Muannas) dari opsi berikut:",
+                options: [
+                    "أَنْتِ تِلْمِيْذٌ", 
+                    "هُوَ مُدَرِّسَةٌ", 
+                    "هِيَ تِلْمِيْذَةٌ", 
+                    "أَنَا فَلَّاحَةٌ (untuk Laki-laki)"
+                ],
+                answer: 2
+            },
+            {
+                level: 2, points: 10,
+                stimulus: "Pak Hasan adalah seorang tokoh masyarakat di Kabupaten Pohuwato. Beliau sering menerima tamu dari berbagai daerah. Suatu hari, datang seorang pemuda bernama Yusuf. Pak Hasan ingin menanyakan identitas Yusuf menggunakan bahasa Arab, namun ia ingin menanyakan 'Nama'.",
+                question: "Jika Pak Hasan ingin bertanya 'Siapa namamu?' (Kata 'nama' dianggap sesuatu/kata benda, bukan orang langsung), maka kalimat yang tepat diaplikasikan adalah...",
+                options: ["مَنْ اسْمُكَ ؟", "مَا اسْمُكَ ؟", "هَلْ اسْمُكَ ؟", "كَيْفَ اسْمُكَ ؟"],
+                answer: 1
+            },
+            {
+                level: 2, points: 10,
+                stimulus: "Di kelas Bahasa Arab MTsS Al-Mubarak, guru memberikan latihan menyusun kalimat acak (Tarkib). Kalimat acak tersebut adalah: (1) أَنْتَ - (2) مِنْ - (3) أَيْنَ - (4) ؟ .",
+                question: "Urutan susunan kalimat tanya yang benar dari kata-kata acak di atas adalah...",
+                options: ["(3) - (1) - (2) - (4)", "(1) - (2) - (3) - (4)", "(2) - (3) - (1) - (4)", "(2) - (1) - (3) - (4)"],
+                answer: 2
+            },
+             {
+                level: 2, points: 10,
+                stimulus: "Masyarakat Gorontalo dikenal religius dan menjunjung tinggi nilai-nilai kasih sayang antar sesama (Rahmah). Saat berdialog, mereka memperhatikan kesopanan. Ketika ada yang bertanya 'هَلْ أَنْتَ تِلْمِيْذٌ ؟' (Apakah kamu siswa?), jawaban yang diberikan harus logis.",
+                question: "Jika kenyataannya Anda memang seorang siswa (laki-laki), jawaban afirmatif (penerapan 'Ya') yang tepat untuk pertanyaan tersebut adalah...",
+                options: [
+                    "نَعَمْ، أَنَا مُدَرِّسٌ", 
+                    "لَا، أَنَا تِلْمِيْذٌ", 
+                    "نَعَمْ، أَنَا تِلْمِيْذٌ", 
+                    "نَعَمْ، هُوَ تِلْمِيْذٌ"
+                ],
+                answer: 2
+            },
+
+            // LEVEL 3 (Tinggi/HOTS - Penalaran/Analisis) - Q8-Q10
+            {
+                level: 3, points: 12,
+                stimulus: "Bacalah paragraf berikut secara analitis:\n'Di sebuah madrasah di pesisir Marisa, Aminah dan Khadijah sedang berbincang. Aminah menunjuk ke arah seorang pria dewasa yang sedang memeriksa papan tulis di dalam ruang guru, lalu berkata: \"مَنْ هُوَ؟ هَلْ هُوَ تِلْمِيْذٌ؟\". Khadijah yang mengetahui fakta sebenarnya, menggeleng dan menjawab: \"لَا، هُوَ لَيْسَ تِلْمِيْذًا. هُوَ...\" (Tidak, dia bukan siswa. Dia adalah...).'",
+                question: "Berdasarkan penalaran konteks (HOTS) dari wacana di atas, kosa kata profesi yang paling logis dan tepat untuk melengkapi jawaban Khadijah adalah...",
+                options: ["تِلْمِيْذٌ (Siswa)", "فَلَّاحٌ (Petani)", "مُدَرِّسٌ (Guru Lk)", "مُدَرِّسَةٌ (Guru Pr)"],
+                answer: 2 
+            },
+             {
+                level: 3, points: 12,
+                stimulus: "Perhatikan dua pernyataan berikut!\nPernyataan 1: 'Cinta diri sendiri' dalam Kurikulum Berbasis Cinta (KBC) salah satunya diwujudkan dengan jujur atas identitas diri saat berta'aruf.\nPernyataan 2: Seseorang bernama Ahmad (laki-laki) ketika ditanya 'مَنْ أَنْتَ؟' ia menjawab dengan sengaja: 'أَنَا تِلْمِيْذَةٌ' (Saya siswi/perempuan) untuk bercanda dan mengelabui temannya.",
+                question: "Kesimpulan analisis (HOTS) yang paling tepat terhadap tindakan Ahmad adalah...",
+                options: [
+                    "Tindakan Ahmad benar secara tata bahasa Arab namun salah secara etika KBC.",
+                    "Tindakan Ahmad salah secara tata bahasa (menyalahi kesesuaian gender) dan bertentangan dengan nilai kejujuran pada KBC.",
+                    "Tindakan Ahmad bisa dibenarkan karena kata 'Ana' bersifat universal untuk laki-laki dan perempuan.",
+                    "Tindakan Ahmad mencerminkan kecerdasan humor yang tinggi dalam KBC."
+                ],
+                answer: 1
+            },
+            {
+                level: 3, points: 12,
+                stimulus: "Evaluasilah teks perkenalan (Ta'aruf) tertulis milik seorang siswa baru dari pegunungan Pohuwato berikut ini:\n'السَّلَامُ عَلَيْكُمْ. اسْمِيْ عُثْمَان. أَنَا مِنْ بَوْهُوَاتُوْ. هِيَ تِلْمِيْذٌ. وَهَذَا أَخِيْ، هِيَ فَلَّاحٌ.'\nGuru menemukan adanya 2 kesalahan mendasar dalam struktur kalimat (Tarkib) yang terkait dengan penggunaan kata ganti (Dhamir) yang tidak bersesuaian.",
+                question: "Hasil evaluasi dan perbaikan (HOTS) yang tepat untuk teks Utsman di atas adalah...",
+                options: [
+                    "Kata 'اسْمِيْ' diubah menjadi 'اسْمُكَ' dan 'أَخِيْ' menjadi 'أُخْتِيْ'.",
+                    "Kata 'هِيَ تِلْمِيْذٌ' seharusnya 'أَنَا تِلْمِيْذٌ', dan 'هِيَ فَلَّاحٌ' seharusnya 'هُوَ فَلَّاحٌ'.",
+                    "Kata 'أَنَا' diubah menjadi 'نَحْنُ' dan 'مِنْ' dihapus.",
+                    "Teks tersebut sudah benar seutuhnya secara kaidah sintaksis (Nahwu) dasar."
+                ],
+                answer: 1
+            }
+        ];
+
+        /* === GLOBAL FUNCTIONS === */
+        
+        function showAlert(title, message) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            document.getElementById('alertModal').classList.remove('hidden');
+            document.getElementById('alertModal').classList.add('flex');
+        }
+
+        function closeAlert() {
+            document.getElementById('alertModal').classList.add('hidden');
+            document.getElementById('alertModal').classList.remove('flex');
+        }
+
+        function showModal(contentHTML) {
+            const modal = document.getElementById('globalModal');
+            const content = document.getElementById('modalContent');
+            content.innerHTML = contentHTML;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('globalModal');
+            const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function navTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        /* === SPECIFIC ACTIONS === */
+        
+        function showDeveloperInfo() {
+            const content = `
+                <div class="p-6 relative">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <div class="text-center">
+                        <div class="w-32 h-32 mx-auto rounded-full border-4 border-emerald-500 overflow-hidden shadow-xl mb-4 relative bg-slate-100 flex items-center justify-center">
+                             <span class="text-4xl text-slate-400 font-bold absolute z-0">MB</span>
+                             <img src="https://iili.io/nmqxHZX.md.jpg" alt="Developer" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">Mohamad Hasan Bisri, S.Pd.I</h3>
+                        <p class="text-emerald-600 font-medium">Senior Instructional Designer</p>
+                        <hr class="my-4 border-slate-200">
+                        <div class="space-y-2 text-sm text-slate-600 text-left bg-slate-50 p-4 rounded-xl">
+                            <p class="flex items-center gap-2"><svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg> MTsS Al-Mubarak Marisa</p>
+                            <p class="flex items-center gap-2"><svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> hasanbisri6593@gmail.com</p>
+                            <p class="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200 font-semibold italic text-xs">Pakar Kurikulum Berbasis Cinta (Kemenag RI) & Ahli Asesmen</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function showTujuanPembelajaran() {
+            const content = `
+                <div class="p-6 relative bg-gradient-to-br from-emerald-50 to-white rounded-2xl">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 text-emerald-800 hover:text-emerald-900 bg-emerald-100 rounded-full p-1 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <div class="mb-4 text-center">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gold-400 text-white mb-2 shadow-md">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-emerald-900">Tujuan Pembelajaran</h3>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm text-sm text-slate-700 leading-relaxed mb-4">
+                        <p>Murid mampu menganalisis kosa kata, pola kalimat, dan wacana tentang <span class="font-arabic font-bold text-lg text-emerald-700">التَّعَارُف</span> dengan pola kalimat <span class="font-arabic text-emerald-700">(مَن هُوَ؟ - مَنْ هِيَ؟ - مِنْ أَيْنَ أَنْتَ؟ - أَنَا تِلْمِيْذ – هِي مُدَرِّسَة – نَحْن - الْاِسْتِفْهَام بِ مَا/ مَن/ هَل/ مِنْ أَيْن/ كَيْف)</span>.</p>
+                    </div>
+
+                    <div class="bg-emerald-800 text-white p-4 rounded-xl text-sm mb-4">
+                        <h4 class="font-bold mb-2 flex items-center gap-2"><svg class="w-4 h-4 text-gold-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg> Kurikulum Berbasis Cinta</h4>
+                        <p class="italic text-emerald-100">Pembelajaran ini diwujudkan sebagai bentuk <strong>Cinta kepada Allah dan Rasul-Nya, Cinta Ilmu, serta Cinta Diri Sendiri dan Sesama Manusia</strong>.</p>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function submitForm() {
+            const name = document.getElementById('studentName').value.trim();
+            const cls = document.getElementById('studentClass').value;
+            
+            if (!name || !cls) {
+                showAlert("Data Tidak Lengkap", "Mohon isi Nama Lengkap dan pilih Kelas Anda sebelum memulai.");
+                return;
+            }
+
+            state.student.name = name;
+            state.student.class = cls;
+            
+            document.getElementById('dash-student-name').innerText = name;
+            document.getElementById('dash-student-class').innerText = cls;
+            
+            initGuide();
+            navTo('screen-guide');
+        }
+
+        /* === GUIDE LOGIC === */
+        const guideSlides = [
+            { icon: '🗺️', title: 'Peta Petualangan', desc: 'Selesaikan 3 tahapan utama secara berurutan: Belajar (Materi), Bermain (Tantangan), dan Berlatih (Asesmen).' },
+            { icon: '🔒', title: 'Sistem Terkunci', desc: 'Anda tidak dapat melompat ke tahap berikutnya sebelum menyelesaikan tahap sebelumnya. Pastikan tuntas 100%!' },
+            { icon: '🏆', title: 'Laporan Otomatis', desc: 'Di akhir petualangan, Anda akan mendapatkan Rapot PDF interaktif dan data Anda akan tersimpan di server secara otomatis.' }
+        ];
+        let currentGuide = 0;
+
+        function initGuide() {
+            const dots = document.getElementById('guide-dots');
+            dots.innerHTML = guideSlides.map((_, i) => `<div class="w-2 h-2 rounded-full ${i===0 ? 'bg-gold-400' : 'bg-white/30'} transition-all" id="g-dot-${i}"></div>`).join('');
+            renderGuideSlide();
+        }
+
+        function renderGuideSlide() {
+            const content = document.getElementById('guide-content');
+            const slide = guideSlides[currentGuide];
+            
+            content.innerHTML = `
+                <div class="animate-fadeIn">
+                    <div class="text-6xl mb-6 transform hover:scale-110 transition-transform">${slide.icon}</div>
+                    <h3 class="text-3xl font-bold text-white mb-4">${currentGuide === 0 ? 'Selamat Datang, <br><span class="text-gold-400">' + state.student.name + '</span>' : slide.title}</h3>
+                    <p class="text-emerald-100 text-lg leading-relaxed max-w-md mx-auto">${slide.desc}</p>
+                </div>
+            `;
+
+            const btnPrev = document.getElementById('btn-guide-prev');
+            const btnNext = document.getElementById('btn-guide-next');
+            
+            btnPrev.style.visibility = currentGuide === 0 ? 'hidden' : 'visible';
+            
+            if (currentGuide === guideSlides.length - 1) {
+                btnNext.innerText = "Masuk Menu Utama";
+                btnNext.classList.remove('bg-gold-500', 'text-emerald-900');
+                btnNext.classList.add('bg-white', 'text-emerald-800');
+            } else {
+                btnNext.innerText = "Selanjutnya";
+                btnNext.classList.add('bg-gold-500', 'text-emerald-900');
+                btnNext.classList.remove('bg-white', 'text-emerald-800');
+            }
+
+            guideSlides.forEach((_, i) => {
+                const dot = document.getElementById(`g-dot-${i}`);
+                if(i === currentGuide) {
+                    dot.classList.remove('bg-white/30'); dot.classList.add('bg-gold-400', 'w-4');
+                } else {
+                    dot.classList.add('bg-white/30'); dot.classList.remove('bg-gold-400', 'w-4');
+                }
+            });
+        }
+
+        function changeGuideSlide(dir) {
+            if (dir === 1 && currentGuide === guideSlides.length - 1) {
+                navTo('screen-dashboard');
+                updateDashboardLocks();
+                return;
+            }
+            currentGuide += dir;
+            renderGuideSlide();
+        }
+
+        /* === DASHBOARD LOGIC === */
+        function updateDashboardLocks() {
+            const cBermain = document.getElementById('card-bermain');
+            const iBermain = document.getElementById('icon-bermain');
+            const sBermain = document.getElementById('status-text-bermain');
+            
+            if(state.progress.belajarComplete) {
+                cBermain.classList.remove('opacity-75');
+                iBermain.classList.replace('bg-slate-300', 'bg-amber-500');
+                sBermain.innerHTML = '<span class="text-amber-600">Terbuka 🔓</span>';
+            } else {
+                cBermain.classList.add('opacity-75');
+            }
+
+            const cBerlatih = document.getElementById('card-berlatih');
+            const iBerlatih = document.getElementById('icon-berlatih');
+            const sBerlatih = document.getElementById('status-text-berlatih');
+            
+            if(state.progress.bermainComplete) {
+                cBerlatih.classList.remove('opacity-75');
+                iBerlatih.classList.replace('bg-slate-300', 'bg-rose-500');
+                sBerlatih.innerHTML = '<span class="text-rose-600">Terbuka 🔓</span>';
+            } else {
+                cBerlatih.classList.add('opacity-75');
+            }
+        }
+
+        function openMenu(menu) {
+            if(menu === 'belajar') {
+                initBelajar();
+                navTo('screen-belajar');
+            } else if (menu === 'bermain') {
+                if(!state.progress.belajarComplete) {
+                    showAlert("Akses Terkunci", "Anda harus menyelesaikan seluruh 8 Slide pada menu BELAJAR terlebih dahulu.");
+                    return;
+                }
+                initBermain();
+                navTo('screen-bermain');
+            } else if (menu === 'berlatih') {
+                if(!state.progress.bermainComplete) {
+                    showAlert("Akses Terkunci", "Anda harus menyelesaikan ke-10 Tantangan di menu BERMAIN terlebih dahulu untuk membuka Asesmen.");
+                    return;
+                }
+                initBerlatih();
+                navTo('screen-berlatih');
+            }
+        }
+
+        /* === BELAJAR LOGIC === */
+        let currentBelajar = 0;
+        let belajarStatus = Array(8).fill(false);
+
+        function initBelajar() {
+            currentBelajar = 0;
+            const indicators = document.getElementById('belajar-indicators');
+            indicators.innerHTML = dataBelajar.map((_, i) => `<div class="w-2 h-2 rounded-full bg-slate-200 transition-all" id="b-dot-${i}"></div>`).join('');
+            renderBelajarSlide();
+        }
+
+        function renderBelajarSlide() {
+            const data = dataBelajar[currentBelajar];
+            document.getElementById('belajar-current').innerText = currentBelajar + 1;
+            
+            const contentHTML = `
+                <div class="p-6 md:p-8 animate-fadeIn">
+                    <h3 class="text-2xl font-bold text-emerald-900 mb-6 border-b-2 border-emerald-100 pb-4 inline-block">${data.title}</h3>
+                    ${data.content}
+                    
+                    <div class="mt-10 bg-amber-50 border border-amber-200 rounded-xl p-5 shadow-inner relative overflow-hidden">
+                         <div class="absolute top-0 right-0 p-2 bg-amber-200 rounded-bl-xl text-amber-800 text-xs font-bold uppercase tracking-wider">Aktivitas Pemantik</div>
+                         <h4 class="font-bold text-slate-800 mt-2 mb-4 pr-16">${data.challenge.question}</h4>
+                         <div class="space-y-2">
+                            ${data.challenge.options.map((opt, idx) => `
+                                <div class="relative">
+                                    <input type="radio" name="b_chal" id="b_chal_${idx}" value="${idx}" class="hidden-radio" ${belajarStatus[currentBelajar] ? 'disabled' : ''}>
+                                    <label for="b_chal_${idx}" class="block w-full p-4 border-2 border-amber-100 rounded-lg cursor-pointer hover:bg-amber-100/50 transition-colors ${belajarStatus[currentBelajar] ? 'opacity-50 cursor-not-allowed' : ''}">
+                                        ${opt}
+                                    </label>
+                                </div>
+                            `).join('')}
+                         </div>
+                         <div id="b_chal_feedback" class="mt-4 hidden font-bold text-sm"></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('belajar-content').innerHTML = contentHTML;
+            
+            if(!belajarStatus[currentBelajar]) {
+                document.querySelectorAll('input[name="b_chal"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        checkBelajarChallenge(parseInt(e.target.value));
+                    });
+                });
+            } else {
+                 updateBelajarBottomNav(true);
+                 const correctInput = document.getElementById(`b_chal_${data.challenge.answer}`);
+                 if(correctInput) correctInput.checked = true;
+            }
+
+            dataBelajar.forEach((_, i) => {
+                const dot = document.getElementById(`b-dot-${i}`);
+                if(i === currentBelajar) {
+                    dot.classList.replace('bg-slate-200', 'bg-emerald-500');
+                    dot.classList.add('w-4');
+                } else {
+                    dot.classList.replace('bg-emerald-500', 'bg-slate-200');
+                    dot.classList.remove('w-4');
+                    if(belajarStatus[i]) dot.classList.replace('bg-slate-200', 'bg-emerald-300'); 
+                }
+            });
+
+            document.getElementById('btn-belajar-prev').style.visibility = currentBelajar === 0 ? 'hidden' : 'visible';
+            updateBelajarBottomNav(belajarStatus[currentBelajar]);
+        }
+
+        function checkBelajarChallenge(selectedIndex) {
+            const data = dataBelajar[currentBelajar];
+            const feedback = document.getElementById('b_chal_feedback');
+            
+            if(selectedIndex === data.challenge.answer) {
+                feedback.innerHTML = '<span class="text-emerald-600 flex items-center gap-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Jawaban Benar! Anda dapat melanjutkan.</span>';
+                feedback.classList.remove('hidden');
+                belajarStatus[currentBelajar] = true;
+                
+                document.querySelectorAll('label[for^="b_chal_"]').forEach(lbl => lbl.classList.add('opacity-50', 'cursor-not-allowed'));
+                
+                updateBelajarBottomNav(true);
+                updateBelajarProgress();
+            } else {
+                feedback.innerHTML = '<span class="text-rose-600 flex items-center gap-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Jawaban kurang tepat, silakan coba lagi.</span>';
+                feedback.classList.remove('hidden');
+                document.querySelectorAll('input[name="b_chal"]').forEach(r => r.checked = false);
+            }
+        }
+
+        function updateBelajarBottomNav(isComplete) {
+            const btnNext = document.getElementById('btn-belajar-next');
+            const statusBox = document.getElementById('belajar-challenge-status');
+            
+            if(isComplete) {
+                statusBox.innerHTML = '<span class="text-emerald-600 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Selesai</span>';
+                btnNext.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                if(currentBelajar === dataBelajar.length - 1) {
+                    btnNext.innerText = "Selesaikan Materi";
+                    btnNext.classList.replace('bg-emerald-500', 'bg-gold-500');
+                    btnNext.classList.replace('hover:bg-emerald-600', 'hover:bg-gold-400');
+                    btnNext.classList.replace('text-white', 'text-emerald-900');
+                } else {
+                    btnNext.innerHTML = 'Lanjut <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
+                     btnNext.classList.replace('bg-gold-500', 'bg-emerald-500');
+                     btnNext.classList.add('text-white');
+                }
+            } else {
+                statusBox.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Selesaikan aktivitas';
+                btnNext.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function updateBelajarProgress() {
+            const completed = belajarStatus.filter(Boolean).length;
+            const pct = (completed / 8) * 100;
+            document.getElementById('prog-belajar').style.width = `${pct}%`;
+            
+            if(completed === 8) {
+                state.progress.belajarComplete = true;
+                document.getElementById('status-belajar').innerHTML = 'Selesai <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            }
+        }
+
+        function changeBelajarSlide(dir) {
+            if (dir === 1 && !belajarStatus[currentBelajar]) return;
+            if (dir === 1 && currentBelajar === dataBelajar.length - 1) {
+                showAlert("Alhamdulillah!", "Anda telah menyelesaikan seluruh materi belajar. Menu BERMAIN kini telah terbuka.");
+                navTo('screen-dashboard');
+                updateDashboardLocks();
+                return;
+            }
+            currentBelajar += dir;
+            renderBelajarSlide();
+        }
+
+        /* === BERMAIN LOGIC === */
+        let currentBermain = 0;
+        let scoreBermain = 0;
+
+        function initBermain() {
+            currentBermain = 0;
+            scoreBermain = 0;
+            updateBermainScoreDisplay();
+            renderBermainChallenge();
+        }
+
+        function renderBermainChallenge() {
+            const data = dataBermain[currentBermain];
+            document.getElementById('bermain-current').innerText = currentBermain + 1;
+            document.getElementById('prog-bermain').style.width = `${((currentBermain+1)/10)*100}%`;
+            
+            const content = `
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-amber-200 animate-slideUp">
+                    <div class="mb-6 bg-slate-50 p-5 rounded-xl border border-slate-100 text-slate-700 text-sm leading-relaxed text-justify">
+                        <span class="font-bold text-amber-700 block mb-2 uppercase text-xs tracking-wider">Stimulus Literasi</span>
+                        ${data.stimulus}
+                    </div>
+                    
+                    <h3 class="font-bold text-lg text-slate-800 mb-6">${data.question}</h3>
+                    
+                    <div class="space-y-3" id="bermain-options">
+                        ${data.options.map((opt, idx) => `
+                            <button onclick="handleBermainAnswer(${idx})" class="w-full text-left p-4 border-2 border-slate-200 rounded-xl hover:border-amber-400 hover:bg-amber-50 transition-all font-medium text-slate-700 focus:outline-none focus:ring-4 focus:ring-amber-100 bg-white">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('bermain-content').innerHTML = content;
+        }
+
+        function handleBermainAnswer(selectedIndex) {
+            const data = dataBermain[currentBermain];
+            const isCorrect = selectedIndex === data.answer;
+            const buttons = document.getElementById('bermain-options').querySelectorAll('button');
+            
+            buttons.forEach(b => b.disabled = true);
+            
+            // Simpan detail jawaban siswa untuk sinkronisasi Google Sheets
+            state.jawabanBermain[currentBermain] = {
+                soal: data.question,
+                jawabanSiswa: data.options[selectedIndex],
+                isBenar: isCorrect
+            };
+            
+            if(isCorrect) {
+                buttons[selectedIndex].classList.replace('border-slate-200', 'border-emerald-500');
+                buttons[selectedIndex].classList.replace('bg-white', 'bg-emerald-50');
+                buttons[selectedIndex].innerHTML += ' <span class="float-right text-emerald-600">✅ Benar! (+10)</span>';
+                scoreBermain += 10;
+                updateBermainScoreDisplay();
+            } else {
+                buttons[selectedIndex].classList.replace('border-slate-200', 'border-rose-500');
+                buttons[selectedIndex].classList.replace('bg-white', 'bg-rose-50');
+                buttons[selectedIndex].innerHTML += ' <span class="float-right text-rose-600">❌ Salah</span>';
+                
+                buttons[data.answer].classList.replace('border-slate-200', 'border-emerald-500');
+                buttons[data.answer].classList.add('bg-emerald-50');
+            }
+
+            setTimeout(() => {
+                if(currentBermain < 9) {
+                    currentBermain++;
+                    renderBermainChallenge();
+                } else {
+                    finishBermain();
+                }
+            }, 1500);
+        }
+
+        function updateBermainScoreDisplay() {
+            document.getElementById('bermain-score').innerText = scoreBermain;
+        }
+
+        function finishBermain() {
+            state.scores.bermain = scoreBermain;
+            state.progress.bermainComplete = true;
+            
+            const msg = scoreBermain >= 70 ? "Luar Biasa!" : "Tetap Semangat!";
+            
+            showModal(`
+                <div class="p-8 text-center bg-amber-50 rounded-2xl border-4 border-amber-200">
+                    <div class="text-6xl mb-4">🎮</div>
+                    <h2 class="text-3xl font-bold text-amber-800 mb-2">${msg}</h2>
+                    <p class="text-slate-600 mb-6">Anda telah menyelesaikan sesi Bermain.</p>
+                    <div class="bg-white rounded-xl p-4 inline-block mb-6 shadow-sm border border-amber-100">
+                        <span class="block text-sm text-amber-600 font-bold uppercase mb-1">Skor Anda</span>
+                        <span class="text-4xl font-bold text-slate-800">${scoreBermain} <span class="text-lg">/ 100</span></span>
+                    </div>
+                    <p class="text-sm text-emerald-700 font-medium mb-6">✨ Menu BERLATIH (Asesmen) kini telah terbuka!</p>
+                    <button onclick="navTo('screen-dashboard'); closeModal(); updateDashboardLocks();" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors shadow-md">
+                        Kembali ke Dashboard
+                    </button>
+                </div>
+            `);
+        }
+
+        /* === BERLATIH LOGIC === */
+        let currentBerlatih = 0;
+        let jawabanBerlatihArr = Array(10).fill(null);
+
+        function initBerlatih() {
+            currentBerlatih = 0;
+            jawabanBerlatihArr = Array(10).fill(null);
+            
+            const prog = document.querySelector('#screen-berlatih .w-full.bg-slate-200');
+            prog.innerHTML = dataBerlatih.map((_, i) => `<div id="latih-seg-${i}" class="flex-1 h-1.5 rounded-full bg-slate-300 transition-colors"></div>`).join('');
+            
+            renderBerlatihQuestion();
+        }
+
+        function renderBerlatihQuestion() {
+            const data = dataBerlatih[currentBerlatih];
+            document.getElementById('berlatih-current').innerText = currentBerlatih + 1;
+            
+            const badge = document.getElementById('berlatih-badge');
+            if(data.level === 1) { badge.className = "px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm bg-emerald-500"; badge.innerText = "Level 1: Dasar (8 Poin)"; }
+            if(data.level === 2) { badge.className = "px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm bg-amber-500"; badge.innerText = "Level 2: Penerapan (10 Poin)"; }
+            if(data.level === 3) { badge.className = "px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm bg-rose-500"; badge.innerText = "Level 3: HOTS (12 Poin)"; }
+
+            document.querySelectorAll('[id^="latih-seg-"]').forEach((el, idx) => {
+                if(idx < currentBerlatih) el.classList.replace('bg-slate-300', 'bg-rose-400');
+                else if (idx === currentBerlatih) el.classList.replace('bg-slate-300', 'bg-rose-500');
+                else { el.classList.replace('bg-rose-400', 'bg-slate-300'); el.classList.replace('bg-rose-500', 'bg-slate-300'); }
+            });
+
+            const content = `
+                <div class="animate-fadeIn">
+                     <div class="mb-6 bg-slate-50 p-5 rounded-xl border-l-4 border-slate-400 text-slate-700 text-sm leading-relaxed text-justify">
+                        <span class="font-bold text-slate-500 block mb-2 uppercase text-xs tracking-wider">Teks Stimulus</span>
+                        ${data.stimulus}
+                    </div>
+                    
+                    <h3 class="font-bold text-lg text-slate-800 mb-6 leading-snug">${currentBerlatih+1}. ${data.question}</h3>
+                    
+                    <div class="space-y-3">
+                        ${data.options.map((opt, idx) => `
+                            <div class="relative">
+                                <input type="radio" name="l_ans" id="l_ans_${idx}" value="${idx}" class="hidden-radio" onchange="enableLanjutBtn()">
+                                <label for="l_ans_${idx}" class="block w-full p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-slate-300 hover:bg-slate-50 transition-all font-medium text-slate-700 flex items-start gap-3">
+                                    <span class="w-6 h-6 rounded-full border-2 border-slate-300 flex-shrink-0 flex items-center justify-center text-xs text-transparent label-circle mt-0.5">✔</span>
+                                    <span class="flex-grow ${/[\u0600-\u06FF]/.test(opt) ? 'font-arabic text-xl text-right' : ''}">${opt}</span>
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <style>
+                    input[type="radio"].hidden-radio:checked + label { border-color: #e11d48; background-color: #fff1f2; color: #9f1239; }
+                    input[type="radio"].hidden-radio:checked + label .label-circle { border-color: #e11d48; background-color: #e11d48; color: white; }
+                </style>
+            `;
+            document.getElementById('berlatih-content').innerHTML = content;
+            
+            const btn = document.getElementById('btn-berlatih-next');
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            if(currentBerlatih === 9) {
+                btn.innerHTML = 'Kumpulkan & Selesai <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            } else {
+                btn.innerHTML = 'Kirim Jawaban & Lanjut <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>';
+            }
+        }
+
+        function enableLanjutBtn() {
+            document.getElementById('btn-berlatih-next').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function nextBerlatih() {
+            const selected = document.querySelector('input[name="l_ans"]:checked');
+            if(!selected) return;
+
+            const selectedIdx = parseInt(selected.value);
+            jawabanBerlatihArr[currentBerlatih] = selectedIdx;
+            
+            // Simpan detail jawaban siswa untuk sinkronisasi Google Sheets
+            state.jawabanBerlatih[currentBerlatih] = {
+                soal: dataBerlatih[currentBerlatih].question,
+                jawabanSiswa: dataBerlatih[currentBerlatih].options[selectedIdx],
+                isBenar: selectedIdx === dataBerlatih[currentBerlatih].answer
+            };
+            
+            if(currentBerlatih < 9) {
+                currentBerlatih++;
+                renderBerlatihQuestion();
+            } else {
+                calculateBerlatihScore();
+            }
+        }
+
+        function calculateBerlatihScore() {
+            let total = 0;
+            let l1 = 0, l2 = 0, l3 = 0;
+            
+            dataBerlatih.forEach((q, idx) => {
+                if(jawabanBerlatihArr[idx] === q.answer) {
+                    total += q.points;
+                    if(q.level === 1) l1++;
+                    if(q.level === 2) l2++;
+                    if(q.level === 3) l3++;
+                }
+            });
+
+            state.scores.berlatih = total;
+            state.berlatihBreakdown = { lvl1: l1, lvl2: l2, lvl3: l3 };
+            state.progress.berlatihComplete = true;
+
+            // Generate report di UI terlebih dahulu
+            generateReportData();
+            navTo('screen-report');
+            
+            // Kirim data ke Google Sheets di background
+            sendDataToGAS();
+        }
+
+        /* === FUNGSI SINKRONISASI KE GOOGLE SHEETS === */
+        function sendDataToGAS() {
+            if(GAS_URL === "URL_GAS_ANDA_DISINI" || !GAS_URL) {
+                console.warn("GAS URL belum disetting. Data tidak akan dikirim ke Spreadsheet.");
+                const statusEl = document.getElementById('syncStatus');
+                statusEl.innerText = "URL Server belum diatur";
+                statusEl.className = "text-sm font-medium text-rose-500 block";
+                return;
+            }
+            
+            const btnDownload = document.getElementById('btnDownloadPDF');
+            const statusEl = document.getElementById('syncStatus');
+            const originalBtnContent = btnDownload.innerHTML;
+            
+            // UI Loading State
+            btnDownload.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Menyimpan...';
+            btnDownload.disabled = true;
+            statusEl.innerText = "Sinkronisasi data ke server...";
+            statusEl.className = "text-sm font-medium text-amber-600 block";
+
+            // Siapkan Payload Data
+            const payload = {
+                action: "saveHasil",
+                name: state.student.name,
+                kelas: state.student.class,
+                bermainScore: state.scores.bermain,
+                berlatihScore: state.scores.berlatih,
+                benar: state.berlatihBreakdown.lvl1 + state.berlatihBreakdown.lvl2 + state.berlatihBreakdown.lvl3,
+                salah: 10 - (state.berlatihBreakdown.lvl1 + state.berlatihBreakdown.lvl2 + state.berlatihBreakdown.lvl3),
+                jawabanBermain: state.jawabanBermain,
+                jawabanBerlatih: state.jawabanBerlatih,
+                // Mengirimkan struktur soal agar sheet "Data Soal" terbuat secara otomatis jika belum ada
+                dataBermain: dataBermain,
+                dataBerlatih: dataBerlatih
+            };
+
+            // Kirim menggunakan fetch POST (plain text mode agar menghindari preflight CORS dari Google Script)
+            fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Data berhasil disimpan:", data);
+                btnDownload.innerHTML = originalBtnContent;
+                btnDownload.disabled = false;
+                
+                statusEl.innerText = "✓ Data tersimpan";
+                statusEl.className = "text-sm font-bold text-emerald-600 block";
+                setTimeout(() => { statusEl.classList.add('hidden'); }, 4000);
+            })
+            .catch(err => {
+                console.error("Gagal menyimpan data:", err);
+                btnDownload.innerHTML = originalBtnContent;
+                btnDownload.disabled = false;
+                
+                statusEl.innerText = "⚠ Gagal menyimpan (Cek koneksi/URL)";
+                statusEl.className = "text-sm font-bold text-rose-600 block";
+            });
+        }
+
+        /* === UTILS & REPORT === */
+        function confirmExit(type) {
+            const res = confirm(`Anda yakin ingin keluar dari sesi ${type}? Kemajuan saat ini akan hilang.`);
+            if(res) {
+                navTo('screen-dashboard');
+                if(type==='berlatih') initBerlatih(); // reset
+            }
+        }
+
+        function generateReportData() {
+            document.getElementById('rep-name').innerText = state.student.name;
+            document.getElementById('rep-class').innerText = state.student.class + " / Fase D";
+            
+            const date = new Date();
+            document.getElementById('rep-date').innerText = `${date.getDate()} / ${date.getMonth()+1} / ${date.getFullYear()}`;
+            
+            document.getElementById('rep-bermain-score').innerText = state.scores.bermain;
+            document.getElementById('rep-berlatih-score').innerText = state.scores.berlatih;
+            
+            const score = state.scores.berlatih;
+            let pred = "", colorClass = "", rec = "";
+            if(score >= 85) {
+                pred = "SANGAT BAIK (MUMTAZ)"; colorClass = "bg-emerald-200 text-emerald-800";
+                rec = "Pertahankan prestasimu! Pemahamanmu tentang Ta'aruf sangat mendalam, jadikan ini bekal untuk berinteraksi santun dalam keberagaman masyarakat Pohuwato.";
+            } else if (score >= 70) {
+                pred = "BAIK (JAYYID)"; colorClass = "bg-amber-200 text-amber-800";
+                rec = "Bagus! Kamu sudah memahami konsep dasar dengan baik. Terus tingkatkan kemampuan analisismu pada struktur kalimat yang lebih kompleks.";
+            } else {
+                pred = "PERLU BIMBINGAN"; colorClass = "bg-rose-200 text-rose-800";
+                rec = "Jangan menyerah. Mari ulangi lagi modul materi. Mempelajari bahasa Arab membutuhkan kesabaran. Silakan berdiskusi dengan Bapak Guru.";
+            }
+            
+            const predEl = document.getElementById('rep-predicate');
+            predEl.innerText = pred;
+            predEl.className = `text-sm font-bold mt-2 inline-block px-3 py-1 rounded ${colorClass}`;
+            document.getElementById('rep-recommendation').innerText = rec;
+
+            document.getElementById('rep-lvl1').innerText = `${state.berlatihBreakdown.lvl1} / 3`;
+            document.getElementById('rep-lvl2').innerText = `${state.berlatihBreakdown.lvl2} / 4`;
+            document.getElementById('rep-lvl3').innerText = `${state.berlatihBreakdown.lvl3} / 3`;
+        }
+
+        function generatePDF() {
+            const element = document.getElementById('printArea');
+            const opt = {
+                margin:       [0, 0, 0, 0], // Margin handled by CSS padding
+                filename:     `Rapot_BahasaArab_${state.student.name.replace(/\s/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            element.classList.add('p-8'); 
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.classList.remove('p-8'); 
+            });
+        }
+
+        // Initialize App
+        window.onload = () => {
+            setTimeout(() => {
+                navTo('screen-cover');
+            }, 2000);
+        };
+    </script>
+</body>
+</html>
